@@ -57,14 +57,7 @@ class QueuedReceiptAdapter(context: Context, val resourceLayout: Int) :
                 run {
                     doAsync {
                         try {
-
-
-                            val receipt = item.getReceipt()
-                            Log.i("kek", receipt.toString())
-                            receipt?.addToDatabase(MyDatabase.getDatabase(context))
-                            uiThread {
-                                Toast.makeText(context, receipt.toString(), Toast.LENGTH_LONG).show()
-                            }
+                            item.fetchReceiptToDatabase(MyDatabase.getDatabase(context))
                         } catch (e: Exception) {
                             Log.e("kek", "error", e)
                         }

@@ -68,6 +68,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
             }
         }
+
+        nukeDatabaseButton.setOnClickListener {
+            doAsync {
+                MyDatabase.nukeDatabase(this@MainActivity)
+            }
+        }
     }
 
     override fun onBackPressed() {

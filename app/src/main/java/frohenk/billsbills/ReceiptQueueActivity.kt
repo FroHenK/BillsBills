@@ -28,6 +28,8 @@ class ReceiptQueueActivity : AppCompatActivity() {
     private var timer: Timer? = null
     private var firstTime: Boolean = true
     private var adapter: QueuedReceiptAdapter? = null
+    private var database: MyDatabase? = null
+
     @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -36,8 +38,8 @@ class ReceiptQueueActivity : AppCompatActivity() {
 
         adapter = QueuedReceiptAdapter(this@ReceiptQueueActivity, R.layout.card_queued_receipt)
 
-        val database = MyDatabase.getDatabase(this@ReceiptQueueActivity)
-        queuedReceiptDao = database.queuedReceiptsDao()
+        database = MyDatabase.getDatabase(this@ReceiptQueueActivity)
+        queuedReceiptDao = database?.queuedReceiptsDao()
         setContentView(R.layout.activity_receipt_queue)
         if (intent.hasExtra(ACTION))
             when (intent.getStringExtra(ACTION)) {
@@ -51,16 +53,22 @@ class ReceiptQueueActivity : AppCompatActivity() {
             run {
                 if (firstTime) {
                     firstTime = false
-                    val updated = t?.filter { it.status == QueuedReceipt.QueuedReceiptStatus.TRYING }
-                    updated?.forEach { it.status = QueuedReceipt.QueuedReceiptStatus.LATER }
-                    if (updated != null) {
-                        doAsync {
+
+
+
+
+                    doAsync {
+                        t?.filter { it.status == QueuedReceipt.QueuedReceiptStatus.LATER }
+                            ?.forEach { it.fetchReceiptToDatabase(database!!) }
+
+                        val updated = t?.filter { it.status == QueuedReceipt.QueuedReceiptStatus.TRYING }
+                        updated?.forEach { it.status = QueuedReceipt.QueuedReceiptStatus.LATER }
+                        if (updated != null) {
                             queuedReceiptDao?.updateReceipts(updated)
                         }
-                    }
-                    doAsync {
+
                         val readyReceipts =
-                            database.receiptsDao().getAll().map { Pair(it.fiscalDocumentNumber, it.totalSum) }
+                            database!!.receiptsDao().getAll().map { Pair(it.fiscalDocumentNumber, it.totalSum) }
                         val updatedReady = t?.filter {
                             it.status != QueuedReceipt.QueuedReceiptStatus.READY && readyReceipts.contains(
                                 Pair(
@@ -126,6 +134,7 @@ class ReceiptQueueActivity : AppCompatActivity() {
                 val queue = queuedReceiptDao!!.getAll()
                 if (!queue.contains(receipt)) {
                     queuedReceiptDao!!.insert(receipt)
+                    receipt.fetchReceiptToDatabase(MyDatabase.getDatabase(this@ReceiptQueueActivity))
                 } else
 
                     runOnUiThread {

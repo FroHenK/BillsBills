@@ -18,7 +18,6 @@ abstract class MyDatabase : RoomDatabase() {
     abstract fun receiptItemsDao(): ReceiptItemDao
 
 
-
     companion object {
         var database: MyDatabase? = null
         @Synchronized
@@ -26,6 +25,12 @@ abstract class MyDatabase : RoomDatabase() {
             if (database == null) database =
                 Room.databaseBuilder(context.applicationContext, MyDatabase::class.java, "database1").build()
             return database as MyDatabase
+        }
+
+        fun nukeDatabase(context: Context) {
+            if (database == null) database =
+                Room.databaseBuilder(context.applicationContext, MyDatabase::class.java, "database1").build()
+            database?.clearAllTables()
         }
     }
 }
