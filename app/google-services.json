@@ -1,0 +1,48 @@
+{
+  "project_info": {
+    "project_number": "504915967364",
+    "firebase_url": "https://billsbills-113b4.firebaseio.com",
+    "project_id": "billsbills-113b4",
+    "storage_bucket": "billsbills-113b4.appspot.com"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:504915967364:android:a028945ae6de30a6",
+        "android_client_info": {
+          "package_name": "frohenk.billsbills"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "504915967364-1cqdr7docooe8lrnf0mnv8k48l89ngr2.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "frohenk.billsbills",
+            "certificate_hash": "44ff5007e239bab233f6d87258b361c5d577948c"
+          }
+        },
+        {
+          "client_id": "504915967364-ccs3vne4h83fa5eocfi4d9k7mdes7bug.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAk88l6-1uB9d51Vg1_zGFEqoWUhK4AYac"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "504915967364-ccs3vne4h83fa5eocfi4d9k7mdes7bug.apps.googleusercontent.com",
+              "client_type": 3
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
