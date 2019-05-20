@@ -14,7 +14,7 @@ fun QueuedReceipt.getReceipt(): Receipt? {
 
     val response = khttp.post("https://receipt-getter.herokuapp.com/", data = mapOf("data" to this.toCode()))
     val jsonObject = response.jsonObject
-    Log.i("kek", this.toCode() + " " + this.originalCode)
+//    Log.i("kek", this.toCode() + " " + this.originalCode)
     if (jsonObject.getString("status") != "success")
         return null
     val gson = GsonBuilder().registerTypeAdapter(LocalDateTime::class.java, LocalDateTimeConverter()).create()
@@ -24,7 +24,7 @@ fun QueuedReceipt.getReceipt(): Receipt? {
         "dateTime",
         gson.toJson(dateTime)
     )
-    Log.i("kek", gson.toJson(dateTime) + " " + receiptJson.toString() + " " + this.toCode())
+//    Log.i("kek", gson.toJson(dateTime) + " " + receiptJson.toString() + " " + this.toCode())
 
     this.status = QueuedReceipt.QueuedReceiptStatus.LATER
     MyDatabase.database?.queuedReceiptsDao()?.updateReceipts(this)

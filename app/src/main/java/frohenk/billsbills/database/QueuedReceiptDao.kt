@@ -13,7 +13,7 @@ interface QueuedReceiptDao {
     fun getAll(): List<QueuedReceipt>
 
     @Query("SELECT * FROM QueuedReceipt")
-    fun getAllFlowable(): Observable<List<QueuedReceipt>>
+    fun getAllFlowable(): Flowable<List<QueuedReceipt>>
 
 
     @Query("SELECT * FROM QueuedReceipt WHERE uid = :uid")
@@ -25,6 +25,10 @@ interface QueuedReceiptDao {
 
     @Update
     fun updateReceipts(vararg queuedReceipt: QueuedReceipt)
+
+
+    @Update
+    fun updateReceipts(queuedReceipts: List<QueuedReceipt>)
 
     @Insert
     fun insert(queuedReceipt: QueuedReceipt)

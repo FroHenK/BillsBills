@@ -14,11 +14,8 @@ import frohenk.billsbills.database.MyDatabase
 import frohenk.billsbills.database.QueuedReceiptDao
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_receipt_queue.*
-import kotlinx.android.synthetic.main.activity_receipt_queue.fab
-import kotlinx.android.synthetic.main.app_bar_main.*
 import org.jetbrains.anko.doAsync
 import java.util.*
-import kotlin.concurrent.fixedRateTimer
 
 class ReceiptQueueActivity : AppCompatActivity() {
 
@@ -28,6 +25,7 @@ class ReceiptQueueActivity : AppCompatActivity() {
     }
 
     private var timer: Timer? = null
+    private var firstTime: Boolean = true
     private var adapter: QueuedReceiptAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -48,6 +46,16 @@ class ReceiptQueueActivity : AppCompatActivity() {
         val queuedReceiptsList = queuedReceiptDao!!.getAllFlowable()
         queuedReceiptsList.observeOn(AndroidSchedulers.mainThread()).subscribe { t: List<QueuedReceipt>? ->
             run {
+                if (firstTime) {
+                    firstTime = false
+                    val updated = t?.filter { it.status == QueuedReceipt.QueuedReceiptStatus.TRYING }
+                    updated?.forEach { it.status = QueuedReceipt.QueuedReceiptStatus.LATER }
+                    if (updated != null) {
+                        doAsync {
+                            queuedReceiptDao?.updateReceipts(updated)
+                        }
+                    }
+                }
                 adapter?.clear()
                 adapter?.addAll(t?.filter { queuedReceipt -> queuedReceipt.visible }?.sortedByDescending { queuedReceipt -> queuedReceipt.uid })
                 queueListView.adapter = adapter
