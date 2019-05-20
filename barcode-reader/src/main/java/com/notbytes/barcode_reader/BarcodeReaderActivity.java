@@ -30,6 +30,10 @@ public class BarcodeReaderActivity extends AppCompatActivity implements BarcodeR
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_barcode_reader);
 
+        if (getSupportActionBar() != null) {
+            getSupportActionBar().hide();
+        }
+
         final Intent intent = getIntent();
         if (intent != null) {
             autoFocus = intent.getBooleanExtra(KEY_AUTO_FOCUS, false);

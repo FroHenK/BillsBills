@@ -70,6 +70,17 @@ class QueuedReceiptAdapter(context: Context, val resourceLayout: Int) :
                     }
                 }
             }
+
+
+            view.findViewById<ImageButton>(R.id.removeFromQueueImageButton).isEnabled =
+                item.status != QueuedReceipt.QueuedReceiptStatus.TRYING
+            view.findViewById<ImageButton>(R.id.removeFromQueueImageButton).visibility =
+                if (view.findViewById<ImageButton>(R.id.removeFromQueueImageButton).isEnabled) View.VISIBLE else View.GONE
+
+            view.findViewById<Button>(R.id.queueRetryButton).isEnabled =
+                item.status == QueuedReceipt.QueuedReceiptStatus.LATER
+            view.findViewById<Button>(R.id.queueRetryButton).visibility =
+                if (view.findViewById<Button>(R.id.queueRetryButton).isEnabled) View.VISIBLE else View.GONE
         }
         return view
     }

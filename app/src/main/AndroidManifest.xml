@@ -14,7 +14,7 @@
             android:roundIcon="@mipmap/ic_launcher_round"
             android:supportsRtl="true"
             android:theme="@style/AppTheme">
-        <activity android:name=".ReceiptQueueActivity">
+        <activity android:name=".ReceiptQueueActivity" android:label="Очередь чеков">
         </activity>
         <activity
                 android:name=".MainActivity"

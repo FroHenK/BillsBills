@@ -14,11 +14,11 @@ abstract class MyDatabase : RoomDatabase() {
     abstract fun queuedReceiptsDao(): QueuedReceiptDao
 
     companion object {
-        private var database: MyDatabase? = null
+        var database: MyDatabase? = null
         @Synchronized
         fun getDatabase(context: Context): MyDatabase {
-
-            if (database == null) database = Room.databaseBuilder(context.applicationContext, MyDatabase::class.java, "database").build()
+            if (database == null) database =
+                Room.databaseBuilder(context.applicationContext, MyDatabase::class.java, "database").build()
             return database as MyDatabase
         }
     }

@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
 import android.util.Log
+import android.view.MenuItem
 import android.widget.Toast
 import androidx.appcompat.app.AppCompatActivity
 import com.frohenk.receiptlibrary.engine.QueuedReceipt
@@ -13,6 +14,8 @@ import frohenk.billsbills.database.MyDatabase
 import frohenk.billsbills.database.QueuedReceiptDao
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_receipt_queue.*
+import kotlinx.android.synthetic.main.activity_receipt_queue.fab
+import kotlinx.android.synthetic.main.app_bar_main.*
 import org.jetbrains.anko.doAsync
 import java.util.*
 import kotlin.concurrent.fixedRateTimer
@@ -28,6 +31,9 @@ class ReceiptQueueActivity : AppCompatActivity() {
     private var adapter: QueuedReceiptAdapter? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+
+        supportActionBar?.setDisplayHomeAsUpEnabled(true)
+
         adapter = QueuedReceiptAdapter(this@ReceiptQueueActivity, R.layout.card_queued_receipt)
 
         queuedReceiptDao = MyDatabase.getDatabase(this@ReceiptQueueActivity).queuedReceiptsDao()
@@ -35,12 +41,7 @@ class ReceiptQueueActivity : AppCompatActivity() {
         if (intent.hasExtra(ACTION))
             when (intent.getStringExtra(ACTION)) {
                 SCAN -> {
-                    val intent = BarcodeReaderActivity.getLaunchIntent(
-                        this,
-                        true,
-                        false
-                    )
-                    startActivityForResult(intent, SCANNER_REQUEST)
+                    startScanner()
                 }
             }
 
@@ -52,6 +53,21 @@ class ReceiptQueueActivity : AppCompatActivity() {
                 queueListView.adapter = adapter
             }
         }
+
+        fab.setOnClickListener {
+            run {
+                startScanner()
+            }
+        }
+    }
+
+    private fun startScanner() {
+        val intent = BarcodeReaderActivity.getLaunchIntent(
+            this,
+            true,
+            false
+        )
+        startActivityForResult(intent, SCANNER_REQUEST)
     }
 
     private var queuedReceiptDao: QueuedReceiptDao? = null
@@ -60,6 +76,16 @@ class ReceiptQueueActivity : AppCompatActivity() {
         if (isFinishing) {
             timer?.cancel()
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+        when (item?.itemId) {
+            android.R.id.home -> {
+                finish()
+                return true
+            }
+        }
+        return super.onOptionsItemSelected(item)
     }
 
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
