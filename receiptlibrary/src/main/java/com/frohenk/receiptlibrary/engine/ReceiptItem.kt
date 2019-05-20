@@ -24,5 +24,18 @@ data class ReceiptItem(
     @ColumnInfo(name = "quantity") var quantity: BigInteger,
     @ColumnInfo(name = "sum") val sum: BigInteger,
     @PrimaryKey(autoGenerate = true) val uid: Int = 0,
-    @ColumnInfo(name = "receiptUid") var receiptUid: Int = 0
-) : Parcelable
+    @ColumnInfo(name = "receiptUid") var receiptUid: Int = 0,
+    @ColumnInfo(name = "category") var category: Category = Category.OTHER
+) : Parcelable {
+    enum class Category {
+        FOOD,
+        DRINKS,
+        HEALTH,
+        HYGIENE_PERSONAL,
+        HOUSE_CHEMICALS,
+        TRANSPORT,
+        PC,
+        ENTERTAINMENT,
+        OTHER
+    }
+}

@@ -34,4 +34,14 @@ class Converters {
     fun toStringFromQueuedReceiptStatus(value: QueuedReceipt.QueuedReceiptStatus?): String? {
         return value?.toString()
     }
+
+    @TypeConverter
+    fun toReceiptItemCategoryFromString(value: String?): ReceiptItem.Category? {
+        return if (value == null) null else ReceiptItem.Category.valueOf(value)
+    }
+
+    @TypeConverter
+    fun toReceiptItemCategoryReceiptStatus(value: ReceiptItem.Category?): String? {
+        return value?.toString()
+    }
 }
