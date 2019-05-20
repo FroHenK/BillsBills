@@ -1,19 +1,19 @@
 package frohenk.billsbills
 
 import android.content.Context
+import android.util.Log
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
-import android.widget.ArrayAdapter
-import android.widget.ImageButton
-import android.widget.ImageView
-import android.widget.TextView
+import android.widget.*
 import com.frohenk.receiptlibrary.engine.QueuedReceipt
 import com.google.zxing.BarcodeFormat
 import com.google.zxing.MultiFormatWriter
 import com.journeyapps.barcodescanner.BarcodeEncoder
 import frohenk.billsbills.database.MyDatabase
 import org.jetbrains.anko.doAsync
+import org.jetbrains.anko.uiThread
+import java.lang.Exception
 import java.time.format.DateTimeFormatter
 import java.time.format.DateTimeFormatterBuilder
 import java.time.temporal.ChronoField
@@ -28,7 +28,7 @@ class QueuedReceiptAdapter(context: Context, val resourceLayout: Int) :
         val item = getItem(position)
         if (item != null) {
             view!!.findViewById<TextView>(R.id.sumTextView).text = "${item.formattedSum} \u20BD"
-//            view.findViewById<TextView>(R.id.queueStatusTextView).text = "${item.formattedSum} \u20BD"
+            view.findViewById<TextView>(R.id.queueStatusTextView).text = item.status.statusMessage
             view.findViewById<TextView>(R.id.queueTimeTextView).text =
                 item.dateTime.format(RECEIPT_DATE_TIME_HUMAN_YEAR)
 
@@ -48,6 +48,24 @@ class QueuedReceiptAdapter(context: Context, val resourceLayout: Int) :
                                 item.visible = false
                                 queuedReceiptsDao.updateReceipts(item)
                             }
+                        }
+                    }
+                }
+            }
+
+            view.findViewById<Button>(R.id.queueRetryButton).setOnClickListener {
+                run {
+                    doAsync {
+                        try {
+
+
+                            val receipt = item.getReceipt()
+                            Log.i("kek", receipt.toString())
+                            uiThread {
+                                Toast.makeText(context, receipt.toString(), Toast.LENGTH_LONG).show()
+                            }
+                        } catch (e: Exception) {
+                            Log.e("kek", "error", e)
                         }
                     }
                 }

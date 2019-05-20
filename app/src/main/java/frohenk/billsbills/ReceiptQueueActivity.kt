@@ -48,7 +48,7 @@ class ReceiptQueueActivity : AppCompatActivity() {
         queuedReceiptsList.observeOn(AndroidSchedulers.mainThread()).subscribe { t: List<QueuedReceipt>? ->
             run {
                 adapter?.clear()
-                adapter?.addAll(t?.filter { queuedReceipt -> queuedReceipt.visible })
+                adapter?.addAll(t?.filter { queuedReceipt -> queuedReceipt.visible }?.sortedByDescending { queuedReceipt -> queuedReceipt.uid })
                 queueListView.adapter = adapter
             }
         }

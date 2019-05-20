@@ -65,6 +65,16 @@ data class QueuedReceipt(
             .appendValue(SECOND_OF_MINUTE, 2)
             .toFormatter()
 
+        val RECEIPT_DATE_TIME_ENCODED: DateTimeFormatter = DateTimeFormatterBuilder()
+            .parseCaseSensitive()
+            .appendValue(YEAR, 4)
+            .appendValue(MONTH_OF_YEAR, 2)
+            .appendValue(DAY_OF_MONTH, 2)
+            .appendLiteral('T')
+            .appendValue(HOUR_OF_DAY, 2)
+            .appendValue(MINUTE_OF_HOUR, 2)
+            .toFormatter()
+
         fun isValid(code: String): Boolean {
             try {
 
@@ -115,21 +125,21 @@ data class QueuedReceipt(
     fun toCode(): String {
         return StringBuilder().apply {
             append("t=")
-            append(dateTime.format(RECEIPT_DATE_TIME))
+            append(dateTime.format(RECEIPT_DATE_TIME_ENCODED))
 
-            append("s=")
+            append("&s=")
             append(formattedSum)
 
-            append("fn=")
+            append("&fn=")
             append(fiscalDriveNumber)
 
-            append("i=")
+            append("&i=")
             append(fiscalDocumentNumber)
 
-            append("fp=")
+            append("&fp=")
             append(fiscalSign)
 
-            append("n=1")
+            append("&n=1")
 
         }.toString()
     }
