@@ -4,13 +4,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.SparseArray;
-
+import android.view.View;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
-import com.google.android.gms.vision.barcode.Barcode;
 import com.frohenk.receiptlibrary.engine.QueuedReceipt;
-import com.google.android.material.snackbar.BaseTransientBottomBar;
+import com.google.android.gms.vision.barcode.Barcode;
 import com.google.android.material.snackbar.Snackbar;
 
 import java.util.List;
@@ -40,6 +39,13 @@ public class BarcodeReaderActivity extends AppCompatActivity implements BarcodeR
             useFlash = intent.getBooleanExtra(KEY_USE_FLASH, false);
         }
         mBarcodeReaderFragment = attachBarcodeReaderFragment();
+
+        findViewById(R.id.flashButton).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+               mBarcodeReaderFragment.setUseFlash(!mBarcodeReaderFragment.useFlash);
+            }
+        });
     }
 
     private BarcodeReaderFragment attachBarcodeReaderFragment() {

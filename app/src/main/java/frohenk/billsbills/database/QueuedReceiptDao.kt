@@ -2,10 +2,9 @@ package frohenk.billsbills.database
 
 import androidx.room.*
 import com.frohenk.receiptlibrary.engine.QueuedReceipt
-import com.frohenk.receiptlibrary.engine.Receipt
 import io.reactivex.Flowable
-import io.reactivex.Observable
 import io.reactivex.Single
+import java.math.BigInteger
 
 @Dao
 interface QueuedReceiptDao {
@@ -19,6 +18,8 @@ interface QueuedReceiptDao {
     @Query("SELECT * FROM QueuedReceipt WHERE uid = :uid")
     fun getByUid(uid: Int): Single<QueuedReceipt>
 
+    @Query("SELECT * FROM QueuedReceipt WHERE fiscalDocumentNumber = :fiscalDocumentNumber AND sum=:sum")
+    fun getByFiscalAndSum(fiscalDocumentNumber: BigInteger, sum: BigInteger): Single<QueuedReceipt>
 
     @Query("SELECT * FROM QueuedReceipt WHERE visible = :visible")
     fun getVisible(visible: Boolean = true): List<QueuedReceipt>

@@ -1,8 +1,28 @@
 package com.frohenk.receiptlibrary.engine
 
 import android.os.Parcelable
+import androidx.room.ColumnInfo
+import androidx.room.Entity
+import androidx.room.ForeignKey
+import androidx.room.ForeignKey.CASCADE
+import androidx.room.PrimaryKey
 import kotlinx.android.parcel.Parcelize
 import java.math.BigInteger
 
+@Entity(
+    foreignKeys = [ForeignKey(
+        entity = Receipt::class,
+        parentColumns = ["uid"],
+        childColumns = ["receiptUid"],
+        onDelete = CASCADE
+    )]
+)
 @Parcelize
-data class ReceiptItem(val name: String, val price: BigInteger, val quantity: BigInteger, val sum: BigInteger) : Parcelable
+data class ReceiptItem(
+    @ColumnInfo(name = "name") val name: String,
+    @ColumnInfo(name = "price") val price: BigInteger,
+    @ColumnInfo(name = "quantity") var quantity: BigInteger,
+    @ColumnInfo(name = "sum") val sum: BigInteger,
+    @PrimaryKey(autoGenerate = true) val uid: Int = 0,
+    @ColumnInfo(name = "receiptUid") var receiptUid: Int = 0
+) : Parcelable

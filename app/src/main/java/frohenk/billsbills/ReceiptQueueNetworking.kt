@@ -24,10 +24,30 @@ fun QueuedReceipt.getReceipt(): Receipt? {
         "dateTime",
         gson.toJson(dateTime)
     )
-//    Log.i("kek", gson.toJson(dateTime) + " " + receiptJson.toString() + " " + this.toCode())
+    Log.v("kek", gson.toJson(dateTime) + " " + receiptJson.toString() + " " + this.toCode())
 
     this.status = QueuedReceipt.QueuedReceiptStatus.LATER
     MyDatabase.database?.queuedReceiptsDao()?.updateReceipts(this)
 
     return gson.fromJson<Receipt>(receiptJson.toString(), Receipt::class.java)
+}
+
+@Synchronized
+fun Receipt.addToDatabase(database: MyDatabase) {
+    val receiptsDao = database.receiptsDao()
+    val receiptItemsDao = database.receiptItemsDao()
+    if (receiptsDao.count(this.fiscalDocumentNumber, this.totalSum) != 0)
+        return//already in the database
+
+    receiptsDao.insert(this)
+    val me = receiptsDao.getByFiscalAndSum(this.fiscalDocumentNumber, this.totalSum).blockingGet()
+    this.items.forEach { it.receiptUid = me.receipt.uid }
+    receiptItemsDao.insertAll(this.items)
+
+    database.queuedReceiptsDao().apply {
+        getByFiscalAndSum(this@addToDatabase.fiscalDocumentNumber, this@addToDatabase.totalSum).doOnSuccess {
+            it.status = QueuedReceipt.QueuedReceiptStatus.READY
+            this@apply.updateReceipts(it)
+        }
+    }
 }

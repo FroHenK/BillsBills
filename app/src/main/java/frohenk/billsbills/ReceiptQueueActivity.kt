@@ -1,5 +1,6 @@
 package frohenk.billsbills
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.content.Intent
 import android.os.Bundle
@@ -27,6 +28,7 @@ class ReceiptQueueActivity : AppCompatActivity() {
     private var timer: Timer? = null
     private var firstTime: Boolean = true
     private var adapter: QueuedReceiptAdapter? = null
+    @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -34,7 +36,8 @@ class ReceiptQueueActivity : AppCompatActivity() {
 
         adapter = QueuedReceiptAdapter(this@ReceiptQueueActivity, R.layout.card_queued_receipt)
 
-        queuedReceiptDao = MyDatabase.getDatabase(this@ReceiptQueueActivity).queuedReceiptsDao()
+        val database = MyDatabase.getDatabase(this@ReceiptQueueActivity)
+        queuedReceiptDao = database.queuedReceiptsDao()
         setContentView(R.layout.activity_receipt_queue)
         if (intent.hasExtra(ACTION))
             when (intent.getStringExtra(ACTION)) {
@@ -53,6 +56,22 @@ class ReceiptQueueActivity : AppCompatActivity() {
                     if (updated != null) {
                         doAsync {
                             queuedReceiptDao?.updateReceipts(updated)
+                        }
+                    }
+                    doAsync {
+                        val readyReceipts =
+                            database.receiptsDao().getAll().map { Pair(it.fiscalDocumentNumber, it.totalSum) }
+                        val updatedReady = t?.filter {
+                            it.status != QueuedReceipt.QueuedReceiptStatus.READY && readyReceipts.contains(
+                                Pair(
+                                    it.fiscalDocumentNumber,
+                                    it.sum
+                                )
+                            )
+                        }
+                        updatedReady?.forEach { it.status = QueuedReceipt.QueuedReceiptStatus.READY }
+                        if (updatedReady != null) {
+                            queuedReceiptDao?.updateReceipts(updatedReady)
                         }
                     }
                 }

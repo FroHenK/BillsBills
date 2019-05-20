@@ -1,26 +1,35 @@
 package frohenk.billsbills
 
+import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.view.MenuItem
 import android.view.Menu
+import android.view.MenuItem
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.google.android.material.navigation.NavigationView
+import frohenk.billsbills.database.MyDatabase
+import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.app_bar_main.*
+import kotlinx.android.synthetic.main.content_main.*
+import org.jetbrains.anko.doAsync
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
 
+    private var database: MyDatabase? = null
+
+    @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
         val toolbar: Toolbar = findViewById(R.id.toolbar)
         setSupportActionBar(toolbar)
 
+        database = MyDatabase.getDatabase(this)
 
         fab.setOnClickListener {
             run {
@@ -39,6 +48,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         toggle.syncState()
 
         navView.setNavigationItemSelectedListener(this)
+
+
+        database?.receiptsDao()?.getAllFlowableData()?.observeOn(AndroidSchedulers.mainThread())
+            ?.subscribe { t ->
+                run {
+                    textView2.text = t.toString()
+                }
+            }
+        button.setOnClickListener {
+            doAsync {
+
+                val receiptItemsDao = database!!.receiptItemsDao()
+                receiptItemsDao.updateReceiptItems(receiptItemsDao.getAll().apply {
+                    forEach {
+                        it.quantity = 3.toBigInteger()
+                    }
+                })
+
+            }
+        }
     }
 
     override fun onBackPressed() {

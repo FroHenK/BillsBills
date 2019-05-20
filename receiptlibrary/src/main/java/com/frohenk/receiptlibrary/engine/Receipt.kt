@@ -1,21 +1,28 @@
 package com.frohenk.receiptlibrary.engine
 
 import android.os.Parcelable
+import androidx.room.*
 import com.frohenk.receiptlibrary.engine.ReceiptItem
+import kotlinx.android.parcel.IgnoredOnParcel
 import kotlinx.android.parcel.Parcelize
 import java.math.BigInteger
 import java.time.LocalDateTime
 
+@Entity
 @Parcelize
 data class Receipt(
-    val dateTime: LocalDateTime,
-    val fiscalDocumentNumber: BigInteger,
-    val fiscalDriveNumber: BigInteger,
-    val fiscalSign: BigInteger,
-    val items: List<ReceiptItem>,
-    val retailPlace: String,
-    val retailPlaceAddress: String,
-    val totalSum: BigInteger,
-    val user: String,
-    val userInn: BigInteger
-) : Parcelable
+    @ColumnInfo(name = "dateTime") val dateTime: LocalDateTime,
+    @ColumnInfo(name = "fiscalDocumentNumber") val fiscalDocumentNumber: BigInteger,
+    @ColumnInfo(name = "fiscalDriveNumber") val fiscalDriveNumber: BigInteger,
+    @ColumnInfo(name = "fiscalSign") val fiscalSign: BigInteger,
+    @ColumnInfo(name = "retailPlace") val retailPlace: String?,
+    @ColumnInfo(name = "retailPlaceAddress") val retailPlaceAddress: String?,
+    @ColumnInfo(name = "totalSum") val totalSum: BigInteger,
+    @ColumnInfo(name = "user") val user: String?,
+    @ColumnInfo(name = "userInn") val userInn: BigInteger?,
+    @PrimaryKey(autoGenerate = true) val uid: Int = 0
+) : Parcelable {
+    @IgnoredOnParcel
+    @Ignore
+    var items: List<ReceiptItem> = ArrayList()
+}
