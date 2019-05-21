@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<androidx.constraintlayout.widget.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+                                                   xmlns:app="http://schemas.android.com/apk/res-auto"
+                                                   xmlns:tools="http://schemas.android.com/tools"
+                                                   android:layout_width="match_parent"
+                                                   android:layout_height="wrap_content">
+
+    <ImageView
+            android:layout_width="50dp"
+            android:layout_height="50dp"
+            app:srcCompat="@drawable/ic_menu_camera"
+            android:scaleType="fitCenter"
+            android:id="@+id/categoryImageView"
+            app:layout_constraintStart_toStartOf="parent"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            android:layout_marginBottom="8dp"
+            android:layout_marginTop="8dp"
+            android:layout_marginStart="8dp"/>
+
+    <TextView
+            android:text="И плов готов!"
+            android:layout_width="0dp"
+            android:textColor="#000"
+            android:textSize="18sp"
+            android:gravity="center_vertical"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:layout_height="0dp"
+            android:id="@+id/categoryTextView"
+            app:layout_constraintStart_toEndOf="@+id/categoryImageView"
+            android:layout_marginStart="16dp"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:layout_marginEnd="8dp"
+            app:layout_constraintTop_toTopOf="@+id/categoryImageView"
+            android:layout_marginBottom="8dp"
+            app:layout_constraintBottom_toBottomOf="@+id/categoryImageView"/>
+</androidx.constraintlayout.widget.ConstraintLayout>

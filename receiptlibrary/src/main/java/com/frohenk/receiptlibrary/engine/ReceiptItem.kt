@@ -27,18 +27,19 @@ data class ReceiptItem(
     @ColumnInfo(name = "receiptUid") var receiptUid: Int = 0,
     @ColumnInfo(name = "category") var category: Category = Category.OTHER
 ) : Parcelable {
-    enum class Category {
-        FOOD,
-        DRINKS,
-        HEALTH,
-        HYGIENE_PERSONAL,
-        HOUSE_CHEMICALS,
-        TRANSPORT,
-        PC,
-        ENTERTAINMENT,
-        OTHER,
-        UNDEFINED
+    enum class Category(val localedName: String) {
+        FOOD("Еда"),
+        DRINKS("Напитки"),
+        HEALTH("Здоровье"),
+        HYGIENE_PERSONAL("Гигиена"),
+        HOUSE_CHEMICALS("Бытовая химия"),
+        TRANSPORT("Транспорт"),
+        PC("Компьютеры и комплектующие"),
+        ENTERTAINMENT("Развлечения"),
+        OTHER("Прочее"),
+        UNDEFINED("Не выбрано")
     }
+
     val formattedPrice: String
         get() = MyFormatters.SUM_FORMAT.format(sum.toBigDecimal().divide(100.toBigDecimal()))
 }

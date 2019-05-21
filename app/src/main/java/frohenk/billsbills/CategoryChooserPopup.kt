@@ -7,6 +7,7 @@ import android.view.View
 import android.view.ViewGroup
 import android.view.animation.Animation
 import android.view.animation.TranslateAnimation
+import android.widget.ListView
 import android.widget.PopupWindow
 import com.frohenk.receiptlibrary.engine.ReceiptItem
 
@@ -18,6 +19,11 @@ class CategoryChooserPopup(val context: Context, val parent: View) {
     val view: View
     val isShowing: Boolean
         get() = popupWindow.isShowing
+    var categoriesListView: ListView
+    var categoryAdapter: CategoryAdapter
+
+    private val categoriesList: List<ReceiptItem.Category> =
+        ReceiptItem.Category.values().filter { it != ReceiptItem.Category.UNDEFINED }
 
 
     init {
@@ -31,6 +37,17 @@ class CategoryChooserPopup(val context: Context, val parent: View) {
         view.findViewById<View>(R.id.dismissPopupImageButton).setOnClickListener {
             dismiss()
         }
+
+        categoriesListView = view.findViewById(R.id.categoriesListView)
+        categoryAdapter = CategoryAdapter(context, R.layout.list_item_category)
+        categoryAdapter.addAll(categoriesList)
+        categoriesListView.setOnItemClickListener { _, _, position, _ ->
+            onCategorySelectedListener?.invoke(
+                categoriesList[position]
+            )
+            dismiss()
+        }
+        categoriesListView.adapter = categoryAdapter
     }
 
     fun show() {

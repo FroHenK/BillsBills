@@ -96,13 +96,16 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                     categoryChooserPopup?.onCategorySelectedListener = { category ->
                                         val updated = undefinedItems.filter { it.name == receiptItem.name }
                                         updated.forEach { it.category = category }
-                                        database?.receiptItemsDao()?.updateReceiptItems(updated)
+                                        doAsync(ExceptionHandler.errorLogger) {
+                                            database?.receiptItemsDao()?.updateReceiptItems(updated)
+                                        }
                                     }
                                     categoryChooserPopup?.show()
                                 }
                             }
                         }
                     }
+                    uncategorizedCardView.visibility = if (linearLayout.childCount == 0) View.GONE else View.VISIBLE
                 }
             }
         button.setOnClickListener {

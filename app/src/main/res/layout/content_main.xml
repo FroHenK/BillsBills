@@ -12,6 +12,7 @@
 
     <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
+            android:animateLayoutChanges="true"
             android:layout_height="wrap_content">
 
         <TextView
@@ -40,13 +41,13 @@
                 android:id="@+id/nukeDatabaseButton"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintTop_toBottomOf="@+id/cardView"
+                app:layout_constraintTop_toBottomOf="@+id/uncategorizedCardView"
                 android:layout_marginTop="8dp"/>
 
         <androidx.cardview.widget.CardView
                 android:layout_width="0dp"
                 android:layout_height="wrap_content"
-                android:id="@+id/cardView"
+                android:id="@+id/uncategorizedCardView"
                 android:layout_marginTop="8dp"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
