@@ -3,8 +3,11 @@ package frohenk.billsbills
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
+import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
+import android.view.View
+import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
@@ -16,6 +19,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import org.jetbrains.anko.doAsync
+import java.time.LocalDateTime
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
@@ -59,14 +63,26 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         button.setOnClickListener {
             doAsync {
 
-                val receiptItemsDao = database!!.receiptItemsDao()
-                receiptItemsDao.updateReceiptItems(receiptItemsDao.getAll().apply {
-                    forEach {
-                        it.quantity = 3.toBigInteger()
-                    }
-                })
+                //                val receiptItemsDao = database!!.receiptItemsDao()
+//                receiptItemsDao.updateReceiptItems(receiptItemsDao.getAll().apply {
+//                    forEach {
+//                        it.quantity = 3.toBigInteger()
+//                    }
+//                })
 
             }
+
+//            linearLayout.getChildAt(1).visibility = View.GONE
+            linearLayout.removeViewAt(1)
+
+
+            val view = layoutInflater.inflate(R.layout.linear_receipt_category_chooser, null)
+            view
+                .findViewById<TextView>(R.id.receiptItemDateTimeTextView).apply {
+                    text = "$text ${LocalDateTime.now()}"
+                }
+
+            linearLayout.addView(view, linearLayout.childCount)
         }
 
         nukeDatabaseButton.setOnClickListener {

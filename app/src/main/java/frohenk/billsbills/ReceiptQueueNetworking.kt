@@ -3,6 +3,7 @@ package frohenk.billsbills
 import android.util.Log
 import com.frohenk.receiptlibrary.engine.QueuedReceipt
 import com.frohenk.receiptlibrary.engine.Receipt
+import com.frohenk.receiptlibrary.engine.ReceiptItem
 import com.google.gson.GsonBuilder
 import frohenk.billsbills.database.MyDatabase
 import java.lang.Exception
@@ -52,7 +53,10 @@ fun Receipt.addToDatabase(database: MyDatabase) {
 
     receiptsDao.insert(this)
     val me = receiptsDao.getByFiscalAndSum(this.fiscalDocumentNumber, this.totalSum).blockingGet()
-    this.items.forEach { it.receiptUid = me.receipt.uid }
+    this.items.forEach {
+        it.receiptUid = me.receipt.uid
+        it.category = ReceiptItem.Category.UNDEFINED
+    }
     receiptItemsDao.insertAll(this.items)
 
     database.queuedReceiptsDao().apply {

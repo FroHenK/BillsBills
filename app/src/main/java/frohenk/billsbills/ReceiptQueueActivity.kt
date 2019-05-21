@@ -16,6 +16,7 @@ import frohenk.billsbills.database.QueuedReceiptDao
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.activity_receipt_queue.*
 import org.jetbrains.anko.doAsync
+import java.lang.Exception
 import java.util.*
 
 class ReceiptQueueActivity : AppCompatActivity() {
@@ -53,11 +54,7 @@ class ReceiptQueueActivity : AppCompatActivity() {
             run {
                 if (firstTime) {
                     firstTime = false
-
-
-
-
-                    doAsync {
+                    doAsync(ExceptionHandler.errorLogger) {
                         t?.filter { it.status == QueuedReceipt.QueuedReceiptStatus.LATER }
                             ?.forEach { it.fetchReceiptToDatabase(database!!) }
 
@@ -123,13 +120,14 @@ class ReceiptQueueActivity : AppCompatActivity() {
         return super.onOptionsItemSelected(item)
     }
 
+
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         if (requestCode == SCANNER_REQUEST && resultCode == Activity.RESULT_OK) {
             if (data == null)
                 return
             val receipt = data.getParcelableExtra<QueuedReceipt>(BarcodeReaderActivity.KEY_CAPTURED_RECEIPT)
 
-            doAsync {
+            doAsync(ExceptionHandler.errorLogger) {
 
                 val queue = queuedReceiptDao!!.getAll()
                 if (!queue.contains(receipt)) {

@@ -36,6 +36,7 @@ data class ReceiptItem(
         TRANSPORT,
         PC,
         ENTERTAINMENT,
-        OTHER
+        OTHER,
+        UNDEFINED
     }
 }
