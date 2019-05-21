@@ -3,7 +3,6 @@ package frohenk.billsbills
 import android.annotation.SuppressLint
 import android.content.Intent
 import android.os.Bundle
-import android.view.LayoutInflater
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
@@ -13,18 +12,23 @@ import androidx.appcompat.app.AppCompatActivity
 import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
+import com.frohenk.receiptlibrary.engine.MyFormatters
+import com.frohenk.receiptlibrary.engine.ReceiptItem
 import com.google.android.material.navigation.NavigationView
 import frohenk.billsbills.database.MyDatabase
 import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import org.jetbrains.anko.doAsync
-import java.time.LocalDateTime
+
+private const val receiptItemCategoryTag = 1337
 
 class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelectedListener {
 
 
     private var database: MyDatabase? = null
+
+    var categoryChooserPopup: CategoryChooserPopup? = null
 
     @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -58,31 +62,52 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             ?.subscribe { t ->
                 run {
                     textView2.text = t.toString()
+                    val receiptItems = t.map { it.receiptItems }.flatten()
+                    val undefinedItems = receiptItems.filter { it.category == ReceiptItem.Category.UNDEFINED }
+                    val toBeDeleted: ArrayList<View> = ArrayList()
+                    for (i in 0 until linearLayout.childCount) {
+                        val child = linearLayout.getChildAt(i)
+                        if (child.getTag(receiptItemCategoryTag) == null) {
+                            toBeDeleted.add(child)
+                            continue
+                        }
+                        if (!undefinedItems.any { it.name == child.getTag(receiptItemCategoryTag) })
+                            toBeDeleted.add(child)
+                    }
+                    for (child in toBeDeleted)
+                        linearLayout.removeView(child)
+                    val toBeAdded =
+                        undefinedItems.map { it.name }.toSet().take(3 - linearLayout.childCount).map { it1 ->
+                            undefinedItems.first { it.name == it1 }
+                        }
+                    for (receiptItem in toBeAdded) {
+                        val view = layoutInflater.inflate(R.layout.linear_receipt_category_chooser, null)
+                        view.findViewById<TextView>(R.id.receiptItemNameTextView).text = receiptItem.name
+                        view.findViewById<TextView>(R.id.receiptItemPriceTextView).text = receiptItem.formattedPrice
+                        view.findViewById<TextView>(R.id.receiptItemDateTimeTextView).text =
+                            t.map { it.receipt }.first { it.uid == receiptItem.receiptUid }.dateTime.format(
+                                MyFormatters.RECEIPT_DATE_TIME_HUMAN_YEAR_REVERSE
+                            )
+                        linearLayout.addView(view, linearLayout.childCount)
+                        view.setOnClickListener {
+                            doAsync(ExceptionHandler.errorLogger) {
+                                runOnUiThread {
+                                    categoryChooserPopup = CategoryChooserPopup(this@MainActivity, mainView)
+                                    categoryChooserPopup?.onCategorySelectedListener = { category ->
+                                        val updated = undefinedItems.filter { it.name == receiptItem.name }
+                                        updated.forEach { it.category = category }
+                                        database?.receiptItemsDao()?.updateReceiptItems(updated)
+                                    }
+                                    categoryChooserPopup?.show()
+                                }
+                            }
+                        }
+                    }
                 }
             }
         button.setOnClickListener {
-            doAsync {
+            //            linearLayout.removeViewAt(1)
 
-                //                val receiptItemsDao = database!!.receiptItemsDao()
-//                receiptItemsDao.updateReceiptItems(receiptItemsDao.getAll().apply {
-//                    forEach {
-//                        it.quantity = 3.toBigInteger()
-//                    }
-//                })
-
-            }
-
-//            linearLayout.getChildAt(1).visibility = View.GONE
-            linearLayout.removeViewAt(1)
-
-
-            val view = layoutInflater.inflate(R.layout.linear_receipt_category_chooser, null)
-            view
-                .findViewById<TextView>(R.id.receiptItemDateTimeTextView).apply {
-                    text = "$text ${LocalDateTime.now()}"
-                }
-
-            linearLayout.addView(view, linearLayout.childCount)
         }
 
         nukeDatabaseButton.setOnClickListener {
@@ -93,6 +118,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     }
 
     override fun onBackPressed() {
+        if (categoryChooserPopup?.isShowing == true) {
+            categoryChooserPopup?.dismiss()
+            return
+        }
         val drawerLayout: DrawerLayout = findViewById(R.id.drawer_layout)
         if (drawerLayout.isDrawerOpen(GravityCompat.START)) {
             drawerLayout.closeDrawer(GravityCompat.START)

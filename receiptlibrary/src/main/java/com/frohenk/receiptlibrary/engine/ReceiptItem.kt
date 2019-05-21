@@ -39,4 +39,6 @@ data class ReceiptItem(
         OTHER,
         UNDEFINED
     }
+    val formattedPrice: String
+        get() = MyFormatters.SUM_FORMAT.format(sum.toBigDecimal().divide(100.toBigDecimal()))
 }

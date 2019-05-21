@@ -6,6 +6,7 @@ import android.util.Log
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.PrimaryKey
+import com.frohenk.receiptlibrary.engine.MyFormatters.Companion.SUM_FORMAT
 import kotlinx.android.parcel.Parcelize
 import java.math.BigInteger
 import java.text.DecimalFormat
@@ -36,9 +37,7 @@ data class QueuedReceipt(
     }
 
     companion object {
-        private val SUM_FORMAT = DecimalFormat("#.00").apply {
-            decimalFormatSymbols = DecimalFormatSymbols(Locale.ROOT)
-        }
+
 
         val RECEIPT_DATE_TIME: DateTimeFormatter = DateTimeFormatterBuilder()
             .parseCaseSensitive()

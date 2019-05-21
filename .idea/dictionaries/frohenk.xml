@@ -2,6 +2,7 @@
   <dictionary name="frohenk">
     <words>
       <w>flowable</w>
+      <w>formatters</w>
       <w>gson</w>
     </words>
   </dictionary>
