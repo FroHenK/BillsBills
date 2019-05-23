@@ -128,7 +128,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                             it.normalTotalPrice
                         }.toFloat(), category)
                     }, "Расходы по категориям")
-                    pieDataSet.colors = ColorTemplate.createColors(ColorTemplate.JOYFUL_COLORS)
+                    pieDataSet.colors =
+                        ColorTemplate.createColors(ReceiptItem.Category.values().map { it.color.toArgb() }.toIntArray())
                     pieDataSet.setDrawValues(false)
 
                     expenditrePieChart.data = PieData(pieDataSet)
@@ -160,12 +161,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         }
 
                     })
-                    if(latestCategory==null){
+                    if (latestCategory == null) {
                         chartSelectedCategoryTextView.text = "Все"
                         chartSelectedCategorySumTextView.text = latestSum.toInt().toString() + " \u20BD"
                         chartSelectedCategoryPercentTextView.visibility = View.GONE
-                    }
-                    else{
+                    } else {
                         chartSelectedCategoryTextView.text = latestCategory?.localedName
                         val categorySum = latestReceiptItems.filter { it.category == latestCategory }
                             .sumByDouble { it.normalTotalPrice }

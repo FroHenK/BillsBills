@@ -1,11 +1,13 @@
 package com.frohenk.receiptlibrary.engine
 
+import android.graphics.Color
 import android.os.Parcelable
 import androidx.room.ColumnInfo
 import androidx.room.Entity
 import androidx.room.ForeignKey
 import androidx.room.ForeignKey.CASCADE
 import androidx.room.PrimaryKey
+import com.frohenk.receiptlibrary.R
 import kotlinx.android.parcel.Parcelize
 import java.math.BigInteger
 
@@ -27,17 +29,17 @@ data class ReceiptItem(
     @ColumnInfo(name = "receiptUid") var receiptUid: Int = 0,
     @ColumnInfo(name = "category") var category: Category = Category.OTHER
 ) : Parcelable {
-    enum class Category(val localedName: String) {
-        FOOD("Еда"),
-        DRINKS("Напитки"),
-        HEALTH("Здоровье"),
-        HYGIENE_PERSONAL("Гигиена"),
-        HOUSE_CHEMICALS("Бытовая химия"),
-        TRANSPORT("Транспорт"),
-        PC("Компьютеры и комплектующие"),
-        ENTERTAINMENT("Развлечения"),
-        OTHER("Прочее"),
-        UNDEFINED("Не выбрано")
+    enum class Category(val localedName: String, val color: Color, val drawableId: Int) {
+        FOOD("Еда", Color.valueOf(Color.parseColor("#3cb44b")), R.drawable.food_apple),
+        DRINKS("Напитки", Color.valueOf(Color.parseColor("#89CFF0")), R.drawable.cup_water),
+        HEALTH("Здоровье", Color.valueOf(Color.parseColor("#800000")), R.drawable.pharmacy),
+        HYGIENE_PERSONAL("Гигиена", Color.valueOf(Color.parseColor("#fabebe")), R.drawable.shower_head),
+        HOUSE_CHEMICALS("Бытовая химия", Color.valueOf(Color.parseColor("#000075")), R.drawable.spray_bottle),
+        TRANSPORT("Транспорт", Color.valueOf(Color.parseColor("#9A6324")), R.drawable.bus),
+        PC("Компьютеры и комплектующие", Color.valueOf(Color.parseColor("#483C32")), R.drawable.laptop),
+        ENTERTAINMENT("Развлечения", Color.valueOf(Color.parseColor("#013220")), R.drawable.gamepad_variant),
+        OTHER("Прочее", Color.valueOf(Color.parseColor("#a9a9a9")), R.drawable.cart),
+        UNDEFINED("Не выбрано", Color.valueOf(Color.parseColor("#000000")), R.drawable.help_rhombus)
     }
 
     val formattedPrice: String

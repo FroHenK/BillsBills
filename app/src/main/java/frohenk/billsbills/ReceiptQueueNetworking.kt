@@ -45,7 +45,7 @@ fun QueuedReceipt.fetchReceiptToDatabase(database: MyDatabase) {
 }
 
 @Synchronized
-fun Receipt.addToDatabase(database: MyDatabase) {
+fun Receipt.addToDatabase(database: MyDatabase) {//TODO assign receipt items categories according to the already assigned categories
     val receiptsDao = database.receiptsDao()
     val receiptItemsDao = database.receiptItemsDao()
     if (receiptsDao.count(this.fiscalDocumentNumber, this.totalSum) != 0)
