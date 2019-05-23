@@ -42,4 +42,10 @@ data class ReceiptItem(
 
     val formattedPrice: String
         get() = MyFormatters.SUM_FORMAT.format(sum.toBigDecimal().divide(100.toBigDecimal()))
+
+    val normalPrice: Double
+        get() = price.toBigDecimal().divide(100.toBigDecimal()).toDouble()
+
+    val normalTotalPrice: Double
+        get() = normalPrice * (quantity.toInt())
 }

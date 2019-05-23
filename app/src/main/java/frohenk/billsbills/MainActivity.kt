@@ -14,6 +14,13 @@ import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.frohenk.receiptlibrary.engine.MyFormatters
 import com.frohenk.receiptlibrary.engine.ReceiptItem
+import com.github.mikephil.charting.data.Entry
+import com.github.mikephil.charting.data.PieData
+import com.github.mikephil.charting.data.PieDataSet
+import com.github.mikephil.charting.data.PieEntry
+import com.github.mikephil.charting.highlight.Highlight
+import com.github.mikephil.charting.listener.OnChartValueSelectedListener
+import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.material.navigation.NavigationView
 import frohenk.billsbills.database.MyDatabase
 import io.reactivex.android.schedulers.AndroidSchedulers
@@ -29,6 +36,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
     private var database: MyDatabase? = null
 
     var categoryChooserPopup: CategoryChooserPopup? = null
+    var latestCategory: ReceiptItem.Category? = null
 
     @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -83,7 +91,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     for (receiptItem in toBeAdded) {
                         val view = layoutInflater.inflate(R.layout.linear_receipt_category_chooser, null)
                         view.findViewById<TextView>(R.id.receiptItemNameTextView).text = receiptItem.name
-                        view.findViewById<TextView>(R.id.receiptItemPriceTextView).text = receiptItem.formattedPrice
+                        view.findViewById<TextView>(R.id.receiptItemPriceTextView).text =
+                            receiptItem.formattedPrice + " \u20BD"
                         view.findViewById<TextView>(R.id.receiptItemDateTimeTextView).text =
                             t.map { it.receipt }.first { it.uid == receiptItem.receiptUid }.dateTime.format(
                                 MyFormatters.RECEIPT_DATE_TIME_HUMAN_YEAR_REVERSE
@@ -106,6 +115,65 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         }
                     }
                     uncategorizedCardView.visibility = if (linearLayout.childCount == 0) View.GONE else View.VISIBLE
+
+                    //pie chart
+                    val latestReceipts = t.map { it.receipt }//make it 7 day latest, or 30 days latest
+                    val latestReceiptItems = latestReceipts.map { it.items }.flatten()
+                    val latestSum = latestReceipts.sumByDouble {
+                        it.normalSum
+                    }
+                    expenditureSum.text = MyFormatters.SUM_FORMAT.format(latestSum) + " \u20BD"
+                    val pieDataSet = PieDataSet(ReceiptItem.Category.values().mapIndexed { index, category ->
+                        PieEntry(latestReceiptItems.filter { it.category == category }.sumByDouble {
+                            it.normalTotalPrice
+                        }.toFloat(), category)
+                    }, "Расходы по категориям")
+                    pieDataSet.colors = ColorTemplate.createColors(ColorTemplate.JOYFUL_COLORS)
+                    pieDataSet.setDrawValues(false)
+
+                    expenditrePieChart.data = PieData(pieDataSet)
+                    expenditrePieChart.isSelected = true
+                    expenditrePieChart.isSelected = false
+                    expenditrePieChart.setDrawEntryLabels(false)
+                    expenditrePieChart.legend.isEnabled = false
+                    expenditrePieChart.holeRadius = 60F
+                    expenditrePieChart.description.isEnabled = false
+                    expenditrePieChart.setDrawMarkers(false)
+                    expenditrePieChart.setDrawCenterText(false)
+                    expenditrePieChart.setOnChartValueSelectedListener(object : OnChartValueSelectedListener {
+                        override fun onNothingSelected() {
+                            chartSelectedCategoryTextView.text = "Все"
+                            chartSelectedCategorySumTextView.text = latestSum.toInt().toString() + " \u20BD"
+                            chartSelectedCategoryPercentTextView.visibility = View.GONE
+                        }
+
+                        override fun onValueSelected(e: Entry?, h: Highlight?) {
+                            val category = e!!.data as ReceiptItem.Category
+                            latestCategory = category
+                            chartSelectedCategoryTextView.text = category.localedName
+                            val categorySum = latestReceiptItems.filter { it.category == category }
+                                .sumByDouble { it.normalTotalPrice }
+                            chartSelectedCategorySumTextView.text = categorySum.toInt().toString() + " \u20BD"
+                            chartSelectedCategoryPercentTextView.visibility = View.VISIBLE
+                            chartSelectedCategoryPercentTextView.text =
+                                ((categorySum / latestSum) * 100).toInt().toString() + "%"
+                        }
+
+                    })
+                    if(latestCategory==null){
+                        chartSelectedCategoryTextView.text = "Все"
+                        chartSelectedCategorySumTextView.text = latestSum.toInt().toString() + " \u20BD"
+                        chartSelectedCategoryPercentTextView.visibility = View.GONE
+                    }
+                    else{
+                        chartSelectedCategoryTextView.text = latestCategory?.localedName
+                        val categorySum = latestReceiptItems.filter { it.category == latestCategory }
+                            .sumByDouble { it.normalTotalPrice }
+                        chartSelectedCategorySumTextView.text = categorySum.toInt().toString() + " \u20BD"
+                        chartSelectedCategoryPercentTextView.visibility = View.VISIBLE
+                        chartSelectedCategoryPercentTextView.text =
+                            ((categorySum / latestSum) * 100).toInt().toString() + "%"
+                    }
                 }
             }
         button.setOnClickListener {

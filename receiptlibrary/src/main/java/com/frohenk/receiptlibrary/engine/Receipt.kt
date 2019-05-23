@@ -25,4 +25,8 @@ data class Receipt(
     @IgnoredOnParcel
     @Ignore
     var items: List<ReceiptItem> = ArrayList()
+
+
+    val normalSum: Double
+        get() = totalSum.toBigDecimal().divide(100.toBigDecimal()).toDouble()
 }
