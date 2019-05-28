@@ -102,8 +102,8 @@ class ReceiptQueueActivity : AppCompatActivity() {
         startActivityForResult(intent, SCANNER_REQUEST)
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onDestroy() {
+        super.onDestroy()
         subscribe?.dispose()
     }
 

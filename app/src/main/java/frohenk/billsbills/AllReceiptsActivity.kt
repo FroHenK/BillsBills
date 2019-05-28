@@ -101,8 +101,8 @@ class AllReceiptsActivity : AppCompatActivity() {
             }
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onDestroy() {
+        super.onDestroy()
         subscribe?.dispose()
     }
 }

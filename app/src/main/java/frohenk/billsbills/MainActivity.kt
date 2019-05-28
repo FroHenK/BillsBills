@@ -278,7 +278,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             }
         button.setOnClickListener {
-            var itemsList = ArrayList<ReceiptItem>()
+            val itemsList = ArrayList<ReceiptItem>()
             val itemsSize = (1..3).shuffled().first()
             var totalSum = 0.toBigInteger()
             for (i in 1..itemsSize) {
@@ -318,8 +318,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         }
     }
 
-    override fun onStop() {
-        super.onStop()
+    override fun onDestroy() {
+        super.onDestroy()
         subscription?.dispose()
     }
 
