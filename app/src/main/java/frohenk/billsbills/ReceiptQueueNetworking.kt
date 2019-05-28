@@ -62,6 +62,7 @@ fun Receipt.addToDatabase(database: MyDatabase) {//TODO assign receipt items cat
     database.queuedReceiptsDao().apply {
         getByFiscalAndSum(this@addToDatabase.fiscalDocumentNumber, this@addToDatabase.totalSum).subscribe { it ->
             it.status = QueuedReceipt.QueuedReceiptStatus.READY
+            it.ready = true
             this@apply.updateReceipts(it)
         }
     }

@@ -19,7 +19,7 @@ interface QueuedReceiptDao {
     fun getByUid(uid: Int): Single<QueuedReceipt>
 
     @Query("SELECT * FROM QueuedReceipt WHERE fiscalDocumentNumber = :fiscalDocumentNumber AND sum=:sum")
-    fun getByFiscalAndSum(fiscalDocumentNumber: BigInteger, sum: BigInteger): Single<QueuedReceipt>
+    fun getByFiscalAndSum(fiscalDocumentNumber: BigInteger, sum: BigInteger): Flowable<QueuedReceipt>
 
     @Query("SELECT * FROM QueuedReceipt WHERE visible = :visible")
     fun getVisible(visible: Boolean = true): List<QueuedReceipt>

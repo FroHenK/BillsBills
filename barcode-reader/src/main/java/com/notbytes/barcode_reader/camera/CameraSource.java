@@ -1088,7 +1088,7 @@ public class CameraSource {
 
         /**
          * Releases the underlying receiver.  This is only safe to do after the associated thread
-         * has completed, which is managed in camera source's release method above.
+         * has ready, which is managed in camera source's release method above.
          */
         @SuppressLint("Assert")
         void release() {

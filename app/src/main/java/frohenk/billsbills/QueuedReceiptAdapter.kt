@@ -24,7 +24,7 @@ class QueuedReceiptAdapter(context: Context, val resourceLayout: Int) :
         val item = getItem(position)
         if (item != null) {
             view!!.findViewById<TextView>(R.id.sumTextView).text = "${item.formattedSum} \u20BD"
-            view.findViewById<TextView>(R.id.queueStatusTextView).text = item.status.statusMessage
+            view.findViewById<TextView>(R.id.queueStatusTextView).text = item.trueStatus.statusMessage
             view.findViewById<TextView>(R.id.queueTimeTextView).text =
                 item.dateTime.format(RECEIPT_DATE_TIME_HUMAN_YEAR)
 
@@ -38,7 +38,7 @@ class QueuedReceiptAdapter(context: Context, val resourceLayout: Int) :
                 run {
                     doAsync {
                         val queuedReceiptsDao = MyDatabase.getDatabase(context).queuedReceiptsDao()
-                        when (item.status) {
+                        when (item.trueStatus) {
                             QueuedReceipt.QueuedReceiptStatus.LATER -> queuedReceiptsDao.delete(item)
                             QueuedReceipt.QueuedReceiptStatus.READY -> {
                                 item.visible = false
@@ -63,12 +63,12 @@ class QueuedReceiptAdapter(context: Context, val resourceLayout: Int) :
 
 
             view.findViewById<ImageButton>(R.id.removeFromQueueImageButton).isEnabled =
-                item.status != QueuedReceipt.QueuedReceiptStatus.TRYING
+                item.trueStatus != QueuedReceipt.QueuedReceiptStatus.TRYING
             view.findViewById<ImageButton>(R.id.removeFromQueueImageButton).visibility =
                 if (view.findViewById<ImageButton>(R.id.removeFromQueueImageButton).isEnabled) View.VISIBLE else View.GONE
 
             view.findViewById<Button>(R.id.queueRetryButton).isEnabled =
-                item.status == QueuedReceipt.QueuedReceiptStatus.LATER
+                item.trueStatus == QueuedReceipt.QueuedReceiptStatus.LATER
             view.findViewById<Button>(R.id.queueRetryButton).visibility =
                 if (view.findViewById<Button>(R.id.queueRetryButton).isEnabled) View.VISIBLE else View.GONE
         }

@@ -13,6 +13,7 @@ import androidx.appcompat.widget.Toolbar
 import androidx.core.view.GravityCompat
 import androidx.drawerlayout.widget.DrawerLayout
 import com.frohenk.receiptlibrary.engine.MyFormatters
+import com.frohenk.receiptlibrary.engine.Receipt
 import com.frohenk.receiptlibrary.engine.ReceiptItem
 import com.github.mikephil.charting.data.Entry
 import com.github.mikephil.charting.data.PieData
@@ -27,6 +28,7 @@ import io.reactivex.android.schedulers.AndroidSchedulers
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import org.jetbrains.anko.doAsync
+import java.time.LocalDateTime
 
 private const val receiptItemCategoryTag = 1337
 
@@ -85,9 +87,10 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                     for (child in toBeDeleted)
                         linearLayout.removeView(child)
                     val toBeAdded =
-                        undefinedItems.map { it.name }.toSet().take(3 - linearLayout.childCount).map { it1 ->
-                            undefinedItems.first { it.name == it1 }
-                        }
+                        undefinedItems.map { Pair(it.name, it.receiptUid) }.toSet().take(3 - linearLayout.childCount)
+                            .map { it1 ->
+                                undefinedItems.first { it.name == it1.first && it.receiptUid == it1.second }
+                            }
                     for (receiptItem in toBeAdded) {
                         val view = layoutInflater.inflate(R.layout.linear_receipt_category_chooser, null)
                         view.findViewById<TextView>(R.id.receiptItemNameTextView).text = receiptItem.name
@@ -103,7 +106,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 runOnUiThread {
                                     categoryChooserPopup = CategoryChooserPopup(this@MainActivity, mainView)
                                     categoryChooserPopup?.onCategorySelectedListener = { category ->
-                                        val updated = undefinedItems.filter { it.name == receiptItem.name }
+                                        val updated =
+                                            undefinedItems.filter { it.name == receiptItem.name && it.receiptUid == receiptItem.receiptUid }
                                         updated.forEach { it.category = category }
                                         doAsync(ExceptionHandler.errorLogger) {
                                             database?.receiptItemsDao()?.updateReceiptItems(updated)
@@ -177,12 +181,36 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                 }
             }
         button.setOnClickListener {
-            //            linearLayout.removeViewAt(1)
-
+            var itemsList = ArrayList<ReceiptItem>()
+            val itemsSize = (1..3).shuffled().first()
+            var totalSum = 0.toBigInteger()
+            for (i in 1..itemsSize) {
+                val price = (1000..10000).shuffled().first().toBigInteger()
+                itemsList.add(ReceiptItem("dsadsa" + LocalDateTime.now(), price, 1.toBigInteger(), price))
+                totalSum += price
+            }
+            val receipt = Receipt(
+                LocalDateTime.now()
+                    .minusMinutes((0..59).shuffled().first().toLong())
+                    .minusHours((0..23).shuffled().first().toLong())
+                    .minusDays((0..6).shuffled().first().toLong()),
+                System.currentTimeMillis().toBigInteger(),
+                System.currentTimeMillis().toBigInteger(),
+                System.currentTimeMillis().toBigInteger(),
+                null,
+                null,
+                totalSum,
+                "kek",
+                228.toBigInteger()
+            )
+            receipt.items = itemsList
+            doAsync(ExceptionHandler.errorLogger) {
+                receipt.addToDatabase(database!!)
+            }
         }
 
         nukeDatabaseButton.setOnClickListener {
-            doAsync {
+            doAsync(ExceptionHandler.errorLogger) {
                 MyDatabase.nukeDatabase(this@MainActivity)
             }
         }

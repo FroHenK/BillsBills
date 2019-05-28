@@ -55,10 +55,10 @@ class ReceiptQueueActivity : AppCompatActivity() {
                 if (firstTime) {
                     firstTime = false
                     doAsync(ExceptionHandler.errorLogger) {
-                        t?.filter { it.status == QueuedReceipt.QueuedReceiptStatus.LATER }
+                        t?.filter { it.trueStatus == QueuedReceipt.QueuedReceiptStatus.LATER }
                             ?.forEach { it.fetchReceiptToDatabase(database!!) }
 
-                        val updated = t?.filter { it.status == QueuedReceipt.QueuedReceiptStatus.TRYING }
+                        val updated = t?.filter { it.trueStatus == QueuedReceipt.QueuedReceiptStatus.TRYING }
                         updated?.forEach { it.status = QueuedReceipt.QueuedReceiptStatus.LATER }
                         if (updated != null) {
                             queuedReceiptDao?.updateReceipts(updated)

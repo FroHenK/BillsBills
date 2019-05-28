@@ -29,8 +29,17 @@ data class QueuedReceipt(
     @ColumnInfo(name = "originalCode") val originalCode: String,
     @PrimaryKey(autoGenerate = true) val uid: Int = 0,
     @ColumnInfo(name = "status") var status: QueuedReceiptStatus = QueuedReceiptStatus.LATER,
-    @ColumnInfo(name = "visible") var visible: Boolean = true
+    @ColumnInfo(name = "visible") var visible: Boolean = true,
+    @ColumnInfo(name = "ready") var ready: Boolean = false
 ) : Parcelable {
+
+    val trueStatus: QueuedReceiptStatus
+        get() {
+            return if (ready)
+                QueuedReceiptStatus.READY
+            else
+                status
+        }
 
     enum class QueuedReceiptStatus(val statusMessage: String) {
         LATER("Чек ещё не был получен"), TRYING("Подключение к серверу..."), READY("Чек был добавлен в ваш список")
