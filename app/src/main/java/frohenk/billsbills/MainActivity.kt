@@ -27,6 +27,7 @@ import com.github.mikephil.charting.utils.ColorTemplate
 import com.google.android.material.navigation.NavigationView
 import frohenk.billsbills.database.MyDatabase
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.app_bar_main.*
 import kotlinx.android.synthetic.main.content_main.*
 import org.jetbrains.anko.doAsync
@@ -41,8 +42,8 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
 
     var categoryChooserPopup: CategoryChooserPopup? = null
     var latestCategory: ReceiptItem.Category? = null
+    var subscription: Disposable? = null
 
-    @SuppressLint("CheckResult")
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_main)
@@ -70,7 +71,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
         navView.setNavigationItemSelectedListener(this)
 
 
-        database?.receiptsDao()?.getAllFlowableData()?.observeOn(AndroidSchedulers.mainThread())
+        subscription = database?.receiptsDao()?.getAllFlowableData()?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribe { t ->
                 run {
                     textView2.text = t.toString()
@@ -315,6 +316,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             val intent = Intent(this, AllReceiptsActivity::class.java)
             startActivity(intent)
         }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        subscription?.dispose()
     }
 
     override fun onBackPressed() {

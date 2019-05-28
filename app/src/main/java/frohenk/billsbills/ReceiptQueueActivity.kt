@@ -14,6 +14,7 @@ import com.notbytes.barcode_reader.BarcodeReaderActivity
 import frohenk.billsbills.database.MyDatabase
 import frohenk.billsbills.database.QueuedReceiptDao
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_receipt_queue.*
 import org.jetbrains.anko.doAsync
 import java.lang.Exception
@@ -30,8 +31,7 @@ class ReceiptQueueActivity : AppCompatActivity() {
     private var firstTime: Boolean = true
     private var adapter: QueuedReceiptAdapter? = null
     private var database: MyDatabase? = null
-
-    @SuppressLint("CheckResult")
+    var subscribe: Disposable? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
 
@@ -50,7 +50,7 @@ class ReceiptQueueActivity : AppCompatActivity() {
             }
 
         val queuedReceiptsList = queuedReceiptDao!!.getAllFlowable()
-        queuedReceiptsList.observeOn(AndroidSchedulers.mainThread()).subscribe { t: List<QueuedReceipt>? ->
+        subscribe = queuedReceiptsList.observeOn(AndroidSchedulers.mainThread()).subscribe { t: List<QueuedReceipt>? ->
             run {
                 if (firstTime) {
                     firstTime = false
@@ -100,6 +100,11 @@ class ReceiptQueueActivity : AppCompatActivity() {
             false
         )
         startActivityForResult(intent, SCANNER_REQUEST)
+    }
+
+    override fun onStop() {
+        super.onStop()
+        subscribe?.dispose()
     }
 
     private var queuedReceiptDao: QueuedReceiptDao? = null

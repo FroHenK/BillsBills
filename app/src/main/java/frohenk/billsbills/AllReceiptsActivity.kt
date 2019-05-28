@@ -11,14 +11,14 @@ import com.frohenk.receiptlibrary.engine.MyFormatters
 import com.frohenk.receiptlibrary.engine.ReceiptItem
 import frohenk.billsbills.database.MyDatabase
 import io.reactivex.android.schedulers.AndroidSchedulers
+import io.reactivex.disposables.Disposable
 import kotlinx.android.synthetic.main.activity_all_receipts.*
 import kotlinx.android.synthetic.main.content_main.*
 import org.jetbrains.anko.doAsync
 
 class AllReceiptsActivity : AppCompatActivity() {
     private var database: MyDatabase? = null
-
-    @SuppressLint("CheckResult")
+    var subscribe: Disposable? = null
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(R.layout.activity_all_receipts)
@@ -26,7 +26,7 @@ class AllReceiptsActivity : AppCompatActivity() {
 
         database = MyDatabase.getDatabase(this)
 
-        database?.receiptsDao()?.getAllFlowableData()?.observeOn(AndroidSchedulers.mainThread())
+        subscribe = database?.receiptsDao()?.getAllFlowableData()?.observeOn(AndroidSchedulers.mainThread())
             ?.subscribe { t ->
                 run {
                     val receiptItems = t.sortedByDescending { it.receipt.dateTime }.map { it.receiptItems }.flatten()
@@ -99,5 +99,10 @@ class AllReceiptsActivity : AppCompatActivity() {
                     allReceiptsSumTextView.text = MyFormatters.SUM_FORMAT.format(totalSum) + " \u20BD"
                 }
             }
+    }
+
+    override fun onStop() {
+        super.onStop()
+        subscribe?.dispose()
     }
 }
