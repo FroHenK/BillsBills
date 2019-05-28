@@ -269,7 +269,7 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         }
 
                         val imageView = view.findViewById<ImageView>(R.id.receiptItemImageView)
-                        imageView.visibility=View.VISIBLE
+                        imageView.visibility = View.VISIBLE
                         val drawable = this@MainActivity.getDrawable(receiptItem.category.drawableId)
                         drawable.setColorFilter(receiptItem.category.color.toArgb(), PorterDuff.Mode.SRC_ATOP)
                         imageView.setImageDrawable(drawable)
@@ -309,6 +309,11 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
             doAsync(ExceptionHandler.errorLogger) {
                 MyDatabase.nukeDatabase(this@MainActivity)
             }
+        }
+
+        lastItemsMoreInfoButton.setOnClickListener {
+            val intent = Intent(this, AllReceiptsActivity::class.java)
+            startActivity(intent)
         }
     }
 
