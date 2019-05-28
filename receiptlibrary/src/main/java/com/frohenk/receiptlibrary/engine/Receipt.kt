@@ -17,7 +17,7 @@ data class Receipt(
     @ColumnInfo(name = "fiscalSign") val fiscalSign: BigInteger,
     @ColumnInfo(name = "retailPlace") val retailPlace: String?,
     @ColumnInfo(name = "retailPlaceAddress") val retailPlaceAddress: String?,
-    @ColumnInfo(name = "totalSum") val totalSum: BigInteger,
+    @ColumnInfo(name = "totalSum") var totalSum: BigInteger,
     @ColumnInfo(name = "user") val user: String?,
     @ColumnInfo(name = "userInn") val userInn: BigInteger?,
     @PrimaryKey(autoGenerate = true) val uid: Int = 0

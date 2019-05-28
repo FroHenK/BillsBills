@@ -3,8 +3,10 @@ package frohenk.billsbills.database
 import androidx.room.*
 import com.frohenk.receiptlibrary.engine.Receipt
 import io.reactivex.Flowable
+import io.reactivex.Maybe
 import io.reactivex.Single
 import java.math.BigInteger
+import java.util.concurrent.Future
 
 @Dao
 interface ReceiptDao {
@@ -22,7 +24,7 @@ interface ReceiptDao {
     fun getAllFlowable(): Flowable<List<Receipt>>
 
     @Query("SELECT * FROM Receipt WHERE uid = :uid")
-    fun getByUid(uid: Int): Single<DataReceipt>
+    fun getByUid(uid: Int): Maybe<DataReceipt>
 
 
     @Query("SELECT * FROM Receipt WHERE fiscalDocumentNumber = :fiscalDocumentNumber AND totalSum=:totalSum")

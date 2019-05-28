@@ -4,17 +4,57 @@
                                                    xmlns:tools="http://schemas.android.com/tools"
                                                    android:layout_width="match_parent"
                                                    android:layout_height="wrap_content"
-                                                   android:clickable="true"
-                                                   android:background="?android:attr/selectableItemBackground">
+                                                   android:animateLayoutChanges="true">
 
     <androidx.constraintlayout.widget.ConstraintLayout
-            android:layout_width="match_parent"
+            android:layout_width="wrap_content"
+            android:layout_height="0dp"
+            app:layout_constraintTop_toTopOf="parent"
+            app:layout_constraintBottom_toBottomOf="parent"
+            app:layout_constraintEnd_toEndOf="parent"
+            android:background="@android:color/black"
+            android:visibility="gone"
+            android:id="@+id/receiptItemHiddenActions">
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:id="@+id/receiptItemDeleteLayout"
+                android:clickable="true"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintEnd_toEndOf="parent"
+                app:layout_constraintTop_toTopOf="parent"
+                android:background="@android:color/holo_red_dark"
+                android:foreground="?android:attr/selectableItemBackground"
+                app:layout_constraintBottom_toBottomOf="parent"
+                app:layout_constraintHorizontal_bias="1.0"
+                app:layout_constraintStart_toEndOf="@+id/receiptItemEditLayout"
+                >
+        </androidx.constraintlayout.widget.ConstraintLayout>
+
+        <androidx.constraintlayout.widget.ConstraintLayout
+                android:clickable="true"
+                android:layout_width="60dp"
+                android:layout_height="wrap_content"
+                app:layout_constraintTop_toTopOf="parent"
+                app:layout_constraintStart_toStartOf="parent"
+                android:background="@android:color/holo_orange_dark"
+                android:foreground="?android:attr/selectableItemBackground"
+                app:layout_constraintBottom_toBottomOf="parent"
+                android:id="@+id/receiptItemEditLayout">
+        </androidx.constraintlayout.widget.ConstraintLayout>
+    </androidx.constraintlayout.widget.ConstraintLayout>
+
+    <androidx.constraintlayout.widget.ConstraintLayout
+            android:id="@+id/receiptItemItemLayout"
+            android:clickable="true"
+            android:longClickable="true"
+            android:background="?android:attr/selectableItemBackground"
+            android:layout_width="0dp"
             android:layout_height="wrap_content"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintTop_toTopOf="parent"
             app:layout_constraintStart_toStartOf="parent"
-            app:layout_constraintEnd_toEndOf="parent"
-            >
+            app:layout_constraintEnd_toStartOf="@+id/receiptItemHiddenActions">
 
         <TextView
                 android:layout_width="0dp"
@@ -50,6 +90,7 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/receiptItemDateTimeTextView"
                     android:textSize="12sp"
+                    android:maxLines="1"
                     app:layout_constraintTop_toBottomOf="@+id/receiptItemPriceTextView"
                     app:layout_constraintEnd_toEndOf="parent"
                     android:layout_marginTop="4dp"/>
@@ -60,10 +101,12 @@
                     android:layout_height="wrap_content"
                     android:id="@+id/receiptItemPriceTextView"
                     android:textSize="16sp"
+                    android:maxLines="1"
                     app:layout_constraintEnd_toEndOf="parent"
                     app:layout_constraintTop_toTopOf="parent"
                     android:textColor="#000"/>
         </androidx.constraintlayout.widget.ConstraintLayout>
+
         <ImageView
                 android:visibility="gone"
                 android:layout_width="50dp"

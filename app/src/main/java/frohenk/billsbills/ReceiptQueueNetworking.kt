@@ -67,3 +67,13 @@ fun Receipt.addToDatabase(database: MyDatabase) {//TODO assign receipt items cat
         }
     }
 }
+
+fun ReceiptItem.delete(database: MyDatabase) {
+    database.receiptItemsDao().delete(this)
+    database.receiptsDao().apply {
+        getByUid(receiptUid).subscribe { it ->
+            it.receipt.totalSum -= price * quantity
+            this@apply.updateReceipts(it.receipt)
+        }
+    }
+}

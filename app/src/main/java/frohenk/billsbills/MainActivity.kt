@@ -2,10 +2,12 @@ package frohenk.billsbills
 
 import android.annotation.SuppressLint
 import android.content.Intent
+import android.graphics.PorterDuff
 import android.os.Bundle
 import android.view.Menu
 import android.view.MenuItem
 import android.view.View
+import android.widget.ImageView
 import android.widget.TextView
 import androidx.appcompat.app.ActionBarDrawerToggle
 import androidx.appcompat.app.AppCompatActivity
@@ -101,7 +103,12 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                 MyFormatters.RECEIPT_DATE_TIME_HUMAN_YEAR_REVERSE
                             )
                         linearLayout.addView(view, linearLayout.childCount)
-                        view.setOnClickListener {
+                        val receiptItemItemLayout = view.findViewById<View>(R.id.receiptItemItemLayout)
+                        val onClickFunction: (View) -> Unit = {
+                            for (i in 0 until linearLayout.childCount) {
+                                val child = linearLayout.getChildAt(i)
+                                child.findViewById<View>(R.id.receiptItemHiddenActions).visibility = View.GONE
+                            }
                             doAsync(ExceptionHandler.errorLogger) {
                                 runOnUiThread {
                                     categoryChooserPopup = CategoryChooserPopup(this@MainActivity, mainView)
@@ -116,6 +123,33 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                                     categoryChooserPopup?.show()
                                 }
                             }
+                        }
+                        view.findViewById<View>(R.id.receiptItemEditLayout).visibility = View.GONE
+                        view.findViewById<View>(R.id.receiptItemDeleteLayout).setOnClickListener {
+                            doAsync(ExceptionHandler.errorLogger) {
+                                undefinedItems.filter { it.name == receiptItem.name && it.receiptUid == receiptItem.receiptUid }
+                                    .forEach { it.delete(database!!) }
+                            }
+                        }
+
+                        receiptItemItemLayout.setOnClickListener(onClickFunction)
+                        receiptItemItemLayout.setOnLongClickListener {
+                            val hiddenActionsView = view.findViewById<View>(R.id.receiptItemHiddenActions)
+                            if (hiddenActionsView.visibility == View.VISIBLE) {
+                                hiddenActionsView.visibility = View.GONE
+                                receiptItemItemLayout.setOnClickListener(onClickFunction)
+                            } else {
+                                for (i in 0 until linearLayout.childCount) {
+                                    val child = linearLayout.getChildAt(i)
+                                    child.findViewById<View>(R.id.receiptItemHiddenActions).visibility = View.GONE
+                                }
+                                hiddenActionsView.visibility = View.VISIBLE
+                                receiptItemItemLayout.setOnClickListener {
+                                    hiddenActionsView.visibility = View.GONE
+                                    receiptItemItemLayout.setOnClickListener(onClickFunction)
+                                }
+                            }
+                            true
                         }
                     }
                     uncategorizedCardView.visibility = if (linearLayout.childCount == 0) View.GONE else View.VISIBLE
@@ -177,6 +211,68 @@ class MainActivity : AppCompatActivity(), NavigationView.OnNavigationItemSelecte
                         chartSelectedCategoryPercentTextView.visibility = View.VISIBLE
                         chartSelectedCategoryPercentTextView.text =
                             ((categorySum / latestSum) * 100).toInt().toString() + "%"
+                    }
+                }
+                run {
+                    //recent items
+                    val receiptItems = t.sortedByDescending { it.receipt.dateTime }.map { it.receiptItems }.flatten()
+                        .filter { it.category != ReceiptItem.Category.UNDEFINED }
+
+                    latestItemsLinearLayout.removeAllViews()
+                    val toBeAdded = receiptItems.map { Pair(it.name, it.receiptUid) }.toSet().take(4)
+                        .map { it1 ->
+                            receiptItems.first { it.name == it1.first && it.receiptUid == it1.second }
+                        }
+                    for (receiptItem in toBeAdded) {
+                        val view = layoutInflater.inflate(R.layout.linear_receipt_category_chooser, null)
+                        view.findViewById<TextView>(R.id.receiptItemNameTextView).text = receiptItem.name
+                        view.findViewById<TextView>(R.id.receiptItemPriceTextView).text =
+                            receiptItem.formattedPrice + " \u20BD"
+                        view.findViewById<TextView>(R.id.receiptItemDateTimeTextView).text =
+                            t.map { it.receipt }.first { it.uid == receiptItem.receiptUid }.dateTime.format(
+                                MyFormatters.RECEIPT_DATE_TIME_HUMAN_YEAR_REVERSE
+                            )
+                        latestItemsLinearLayout.addView(view, latestItemsLinearLayout.childCount)
+                        val receiptItemItemLayout = view.findViewById<View>(R.id.receiptItemItemLayout)
+                        view.findViewById<View>(R.id.receiptItemEditLayout).visibility = View.GONE
+                        view.findViewById<View>(R.id.receiptItemDeleteLayout).setOnClickListener {
+                            doAsync(ExceptionHandler.errorLogger) {
+                                receiptItems.filter { it.name == receiptItem.name && it.receiptUid == receiptItem.receiptUid }
+                                    .forEach { it.delete(database!!) }
+                            }
+                        }
+                        receiptItemItemLayout.setOnClickListener {
+                            val hiddenActionsView = view.findViewById<View>(R.id.receiptItemHiddenActions)
+                            if (hiddenActionsView.visibility == View.VISIBLE) {
+                                hiddenActionsView.visibility = View.GONE
+                            } else {
+                                for (i in 0 until latestItemsLinearLayout.childCount) {
+                                    val child = latestItemsLinearLayout.getChildAt(i)
+                                    child.findViewById<View>(R.id.receiptItemHiddenActions).visibility = View.GONE
+                                }
+                                hiddenActionsView.visibility = View.VISIBLE
+                            }
+                        }
+
+                        receiptItemItemLayout.setOnLongClickListener {
+                            val hiddenActionsView = view.findViewById<View>(R.id.receiptItemHiddenActions)
+                            if (hiddenActionsView.visibility == View.VISIBLE) {
+                                hiddenActionsView.visibility = View.GONE
+                            } else {
+                                for (i in 0 until latestItemsLinearLayout.childCount) {
+                                    val child = latestItemsLinearLayout.getChildAt(i)
+                                    child.findViewById<View>(R.id.receiptItemHiddenActions).visibility = View.GONE
+                                }
+                                hiddenActionsView.visibility = View.VISIBLE
+                            }
+                            true
+                        }
+
+                        val imageView = view.findViewById<ImageView>(R.id.receiptItemImageView)
+                        imageView.visibility=View.VISIBLE
+                        val drawable = this@MainActivity.getDrawable(receiptItem.category.drawableId)
+                        drawable.setColorFilter(receiptItem.category.color.toArgb(), PorterDuff.Mode.SRC_ATOP)
+                        imageView.setImageDrawable(drawable)
                     }
                 }
             }
